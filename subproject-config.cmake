@@ -29,6 +29,7 @@ function(add_subproject)
                 COMMAND
                 "${GIT_EXECUTABLE}"
                 "clone"
+                "--recursive"
                 "--depth"
                 "1"
                 "-b"

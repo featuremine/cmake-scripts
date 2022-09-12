@@ -1,3 +1,5 @@
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
 function(add_subproject)
     cmake_parse_arguments(
         ARG

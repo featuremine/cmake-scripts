@@ -23,20 +23,31 @@ if sys.version_info < (3, 6, 0):
 
 
 scripts = []
+scripts_joined = os.getenv('SCRIPTS')
+if len(scripts_joined) > 0:
+    for p in scripts_joined.split(':'):
+        scripts.append(p)
 for root, dirs, files in os.walk('scripts'):
     for name in files:
         scripts.append(os.path.join('scripts', name))
-for p in os.getenv('SCRIPTS').split(':'):
-    scripts.append(p)
 
 
 packages = []
-for p in os.getenv('PACKAGES').split(':'):
-    packages.append(p)
-    packages.append(p + '.*')
+packages_joined = os.getenv('PACKAGES')
+if len(packages_joined) > 0:
+    for p in packages_joined.split(':'):
+        packages.append(p)
+        packages.append(p + '.*')
 
 
-setuptools.setup (
+install_requires = []
+install_requires_joined = os.getenv('INSTALL_REQUIRES')
+if len(install_requires_joined) > 0:
+    for p in install_requires_joined.split(':'):
+        install_requires.append(p)
+
+
+setuptools.setup(
     name = os.getenv('PACKAGE_NAME'),
     version = os.getenv('PACKAGE_VERSION'),
     author='Featuremine Corporation',
@@ -50,4 +61,5 @@ setuptools.setup (
     license='COPYRIGHT (c) 2022 by Featuremine Corporation',
     scripts=scripts,
     packages=setuptools.find_packages(include=tuple(packages)),
+    install_requires=install_requires,
 )

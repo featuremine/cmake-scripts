@@ -29,7 +29,7 @@ function(self_extracting_package)
     )
     add_custom_command(
         OUTPUT
-        "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}.sh"
+        "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}.sh"
 
         COMMAND
         "${CMAKE_COMMAND}" -E env
@@ -40,10 +40,10 @@ function(self_extracting_package)
         "${MODULE_PATH}/install/gen_installer.sh"
         "${MODULE_PATH}/install/installer.sh"
         "${CMAKE_CURRENT_BINARY_DIR}/${ARG_NAME}.tar.gz"
-        "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}.sh"
+        "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}.sh"
 
         COMMENT
-        "Generating installer output/${ARG_NAME}-${PROJECT_VERSION}.sh"
+        "Generating installer output/${ARG_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}.sh"
 
         WORKING_DIRECTORY
         "${ARG_PACKAGE_DIR}"
@@ -58,9 +58,9 @@ function(self_extracting_package)
         ${ARG_NAME}-package ALL
 
         COMMENT
-        "Ready output/${ARG_NAME}-${PROJECT_VERSION}.sh"
+        "Ready output/${ARG_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}.sh"
 
         DEPENDS
-        "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}.sh"
+        "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}.sh"
     )
 endfunction()

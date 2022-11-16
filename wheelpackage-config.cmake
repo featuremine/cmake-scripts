@@ -55,6 +55,7 @@ function(python_package)
 
         "build"
         "--build-base=${ARG_BUILD_DIR}/build"
+        "--build-lib=${ARG_BUILD_DIR}/build/lib"
         ${DEBUG_FLAG}
 
         "egg_info"
@@ -70,10 +71,11 @@ function(python_package)
 
         "build_scripts"
         "--executable=${PYTHON3_BIN}"
-        "-f"
 
         "build"
         "--build-base=${ARG_BUILD_DIR}/build"
+        "--build-lib=${ARG_BUILD_DIR}/build/lib"
+        "--build-scripts=${ARG_BUILD_DIR}/build/scripts"
         ${DEBUG_FLAG}
 
         COMMAND
@@ -118,7 +120,7 @@ function(test_python_package)
         EXTRA_ENV
         "PYTHONPATH=${WHEEL_${ARG_PACKAGE}_BUILD_DIR}/build/lib:$ENV{PYTHONPATH}"
         "PYTHONUNBUFFERED=1"
-        "PATH=${WHEEL_${ARG_PACKAGE}_BUILD_DIR}/build/${WHEEL_${ARG_PACKAGE}_SCRIPTS_DIR}:${ARG_PATH}:$ENV{PATH}"
+        "PATH=${WHEEL_${ARG_PACKAGE}_BUILD_DIR}/build/scripts:${ARG_PATH}:$ENV{PATH}"
         ${ARG_ENVIRONMENT}
     )
     set_tests_properties(

@@ -1,5 +1,35 @@
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+function(git_clone)
+    cmake_parse_arguments(
+        ARG
+        ""
+        "GIT_REVISION;GIT_URL;DIR"
+        "TARGETS;VARIABLES"
+        ${ARGN}
+    )
+    if (NOT EXISTS "${ARG_DIR}")
+        find_package(Git REQUIRED)
+        execute_process(
+            COMMAND
+            "${GIT_EXECUTABLE}"
+            "clone"
+            "--recursive"
+            "--depth"
+            "1"
+            "-b"
+            "${ARG_GIT_REVISION}"
+            "${ARG_GIT_URL}"
+            "${ARG_DIR}"
+            RESULT_VARIABLE ret
+            ERROR_VARIABLE stderr
+        )
+        if(ret AND NOT ret EQUAL 0)
+            message(FATAL_ERROR "git clone ${DEP_GIT_URL} failed: ${stderr}")
+        endif()
+    endif()
+endfunction()
+
 function(add_subproject)
     cmake_parse_arguments(
         ARG
@@ -23,25 +53,12 @@ function(add_subproject)
         set(DEP_SRC_DIR "${CMAKE_BINARY_DIR}/dependencies/src/${ARG_NAME}")
         set(DEP_BIN_DIR "${CMAKE_BINARY_DIR}/dependencies/build/${ARG_NAME}")
         if (NOT EXISTS "${DEP_SRC_DIR}")
-            find_package(Git REQUIRED)
             message(STATUS "Downloading ${ARG_NAME} ${ARG_VERSION} ${ARG_GIT_REVISION}")
-            execute_process(
-                COMMAND
-                "${GIT_EXECUTABLE}"
-                "clone"
-                "--recursive"
-                "--depth"
-                "1"
-                "-b"
-                "${ARG_GIT_REVISION}"
-                "${ARG_GIT_URL}"
-                "${DEP_SRC_DIR}"
-                RESULT_VARIABLE ret
-                ERROR_VARIABLE stderr
+            git_clone(
+                GIT_REVISION ${ARG_GIT_REVISION}
+                GIT_URL ${ARG-GIT_URL}
+                DIR ${DEP_SRC_DIR}
             )
-            if(ret AND NOT ret EQUAL 0)
-                message(FATAL_ERROR "git clone ${DEP_REPO} failed: ${stderr}")
-            endif()
         endif()
         set(BUILD_SHARED_LIBS OFF)
         set(BUILD_TESTING OFF)
@@ -72,4 +89,71 @@ function(add_subproject)
         endif ()
     endif ()
     message(STATUS "Using ${ARG_NAME} ${${ARG_NAME}_VERSION}")
+endfunction()
+
+function(add_make_subproject)
+    cmake_parse_arguments(
+        ARG
+        ""
+        "NAME;VERSION;VERSION_MIN;VERSION_MAX;GIT_REVISION;GIT_URL"
+        ""
+        ${ARGN}
+    )
+    set(ALREADY_EXISTS FALSE)
+    foreach(TARGET_NAME IN LISTS ARG_TARGETS)
+        if (TARGET ${TARGET_NAME})
+            set(ALREADY_EXISTS TRUE)
+        endif ()
+    endforeach()
+    if (NOT ALREADY_EXISTS)
+        set(DEP_SRC_DIR "${CMAKE_BINARY_DIR}/dependencies/src/${ARG_NAME}")
+        set(DEP_BIN_DIR "${CMAKE_BINARY_DIR}/dependencies/build/${ARG_NAME}")
+        if (NOT EXISTS "${DEP_SRC_DIR}")
+            message(STATUS "Downloading ${ARG_NAME} ${ARG_VERSION} ${ARG_GIT_REVISION}")
+            git_clone(
+                GIT_REVISION ${ARG_GIT_REVISION}
+                GIT_URL ${ARG_GIT_URL}
+                DIR ${DEP_SRC_DIR}
+            )
+        endif()
+        set(LIB_PATH "${DEP_BIN_DIR}/lib/${ARG_NAME}.a")
+        if (NOT EXISTS "${LIB_PATH}")
+            execute_process(
+                COMMAND
+                "${CMAKE_COMMAND}" -E env
+                "CC=${CMAKE_C_COMPILER}"
+                "CXX=${CMAKE_CXX_COMPILER}"
+                "PREFIX=${DEP_BIN_DIR}"
+                "BINPATH=${DEP_BIN_DIR}/bin"
+                "INCPATH=${DEP_BIN_DIR}/include"
+                "LIBPATH=${DEP_BIN_DIR}/lib"
+                "DATAPATH=${DEP_BIN_DIR}/data"
+                "make"
+                "-f"
+                makefile
+                "-j4"
+                "install"
+                RESULT_VARIABLE ret
+                ERROR_VARIABLE stderr
+                WORKING_DIRECTORY ${DEP_SRC_DIR}
+            )
+            if(ret AND NOT ret EQUAL 0)
+                message(FATAL_ERROR "build ${DEP_GIT_URL} failed: ${stderr}")
+            endif()
+        endif()
+        add_library(
+            ${ARG_NAME}
+            INTERFACE IMPORTED GLOBAL
+        )
+        target_include_directories(
+            ${ARG_NAME}
+            INTERFACE
+            "${DEP_BIN_DIR}/include"
+        )
+        target_link_libraries(
+            ${ARG_NAME}
+            INTERFACE
+            "${LIB_PATH}"
+        )
+    endif()
 endfunction()

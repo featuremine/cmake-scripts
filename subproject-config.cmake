@@ -56,7 +56,7 @@ function(add_subproject)
             message(STATUS "Downloading ${ARG_NAME} ${ARG_VERSION} ${ARG_GIT_REVISION}")
             git_clone(
                 GIT_REVISION ${ARG_GIT_REVISION}
-                GIT_URL ${ARG-GIT_URL}
+                GIT_URL ${ARG_GIT_URL}
                 DIR ${DEP_SRC_DIR}
             )
         endif()

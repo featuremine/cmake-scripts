@@ -5,7 +5,7 @@ function(git_clone)
         ARG
         ""
         "GIT_REVISION;GIT_URL;DIR"
-        "TARGETS;VARIABLES"
+        ""
         ${ARGN}
     )
     if (NOT EXISTS "${ARG_DIR}")

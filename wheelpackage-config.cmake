@@ -5,7 +5,7 @@ function(python_package)
         ARG
         ""
         "NAME;SHORT_DESCRIPTION;LONG_DESCRIPTION;SRC_DIR;BUILD_DIR;TESTS_PACKAGE"
-        "PACKAGES;SCRIPTS;INSTALL_REQUIRES;PACKAGE_DATA"
+        "PACKAGES;SCRIPTS;INSTALL_REQUIRES"
         ${ARGN}
     )
     find_program(PYTHON3_BIN "python3" REQUIRED)
@@ -25,7 +25,6 @@ function(python_package)
     string(JOIN ":" PACKAGES ${ARG_PACKAGES})
     string(JOIN ":" SCRIPTS ${ARG_SCRIPTS})
     string(JOIN ":" INSTALL_REQUIRES ${ARG_INSTALL_REQUIRES})
-    string(JOIN ":" PACKAGE_DATA ${ARG_PACKAGE_DATA})
     set(
         SET_ENV_VAR
         ${CMAKE_COMMAND} -E env
@@ -36,7 +35,6 @@ function(python_package)
         "PACKAGES=${PACKAGES}"
         "SCRIPTS=${SCRIPTS}"
         "INSTALL_REQUIRES=${INSTALL_REQUIRES}"
-        "PACKAGE_DATA=${PACKAGE_DATA}"
     )
     cmake_policy(SET CMP0116 OLD)
     add_custom_command(

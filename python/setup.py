@@ -46,12 +46,6 @@ if len(install_requires_joined) > 0:
     for p in install_requires_joined.split(':'):
         install_requires.append(p)
 
-package_data = []
-package_data_joined = os.getenv('PACKAGE_DATA')
-if len(package_data_joined) > 0:
-    for p in package_data_joined.split(':'):
-        package_data.append(p)
-
 setuptools.setup(
     name = os.getenv('PACKAGE_NAME'),
     version = os.getenv('PACKAGE_VERSION'),
@@ -67,5 +61,5 @@ setuptools.setup(
     scripts=scripts,
     packages=setuptools.find_packages(include=tuple(packages)),
     install_requires=install_requires,
-    package_data={f'{os.getenv("PACKAGE_NAME")}/data': package_data}
+    package_data={f'{os.getenv("PACKAGE_NAME")}': ['data/*.*']}
 )

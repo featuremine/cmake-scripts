@@ -46,6 +46,7 @@ if len(install_requires_joined) > 0:
     for p in install_requires_joined.split(':'):
         install_requires.append(p)
 
+
 setuptools.setup(
     name = os.getenv('PACKAGE_NAME'),
     version = os.getenv('PACKAGE_VERSION'),

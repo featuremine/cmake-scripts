@@ -61,5 +61,4 @@ setuptools.setup(
     scripts=scripts,
     packages=setuptools.find_packages(include=tuple(packages)),
     install_requires=install_requires,
-    package_data={f'{os.getenv("PACKAGE_NAME")}': ['data/*.*']}
 )

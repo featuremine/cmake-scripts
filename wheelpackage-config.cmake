@@ -13,7 +13,7 @@ function(python_package)
         set(DEBUG_FLAG "--debug")
     endif()
     execute_process(COMMAND ${PYTHON3_BIN} -c "import sys;sys.stdout.write('scripts-%d.%d' % sys.version_info[:2])" OUTPUT_VARIABLE PYTHON3_SCRIPTS_DIR)
-    set(WHEEL_${ARG_NAME}_BUILD_DIR ${ARG_BUILD_DIR} PARENT_SCOPE)
+    set(WHEEL_${ARG_NAME}_BUILD_DIR ${ARG_BUILD_DIR} CACHE INTERNAL "Wheel path for ${ARG_NAME}" FORCE)
     set(WHEEL_${ARG_NAME}_SCRIPTS_DIR ${PYTHON3_SCRIPTS_DIR} PARENT_SCOPE)
     set(TESTS_PACKAGE "${ARG_TESTS_PACKAGE}")
     configure_file(
@@ -97,7 +97,7 @@ function(test_python_package)
     cmake_parse_arguments(
         ARG
         ""
-        "NAME;PACKAGE;TIMEOUT;PATH;TEST"
+        "NAME;PACKAGE;TIMEOUT;PATH;TEST;PYTHONPATH"
         "ENVIRONMENT"
         ${ARGN}
     )
@@ -118,7 +118,7 @@ function(test_python_package)
         JOIN
         ";"
         EXTRA_ENV
-        "PYTHONPATH=${WHEEL_${ARG_PACKAGE}_BUILD_DIR}/build/lib:$ENV{PYTHONPATH}"
+        "PYTHONPATH=${WHEEL_${ARG_PACKAGE}_BUILD_DIR}/build/lib:${ARG_PYTHONPATH}:$ENV{PYTHONPATH}"
         "PYTHONUNBUFFERED=1"
         "PATH=${WHEEL_${ARG_PACKAGE}_BUILD_DIR}/build/scripts:${ARG_PATH}:$ENV{PATH}"
         ${ARG_ENVIRONMENT}

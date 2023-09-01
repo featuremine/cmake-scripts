@@ -26,7 +26,7 @@ PROJECT_VERSION=
 # Display version
 installer_version()
 {
-  echo "$PROJECT_NAME Installer Version: $PROJECT_VERSION, Copyright (c) Featuremine Corporation"
+  echo "$PROJECT_NAME Installer Version: $PROJECT_VERSION, Copyright (c) 2019-2023 Featuremine Corporation"
 }
 
 # Helper function to fix windows paths.

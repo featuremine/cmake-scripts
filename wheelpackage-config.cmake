@@ -20,9 +20,7 @@ function(python_package)
     if(CMAKE_BUILD_TYPE MATCHES DEBUG)
         set(DEBUG_FLAG "--debug")
     endif()
-    execute_process(COMMAND ${PYTHON3_BIN} -c "import sys;sys.stdout.write('scripts-%d.%d' % sys.version_info[:2])" OUTPUT_VARIABLE PYTHON3_SCRIPTS_DIR)
     set(WHEEL_${ARG_NAME}_BUILD_DIR ${ARG_BUILD_DIR} CACHE INTERNAL "Wheel path for ${ARG_NAME}" FORCE)
-    set(WHEEL_${ARG_NAME}_SCRIPTS_DIR ${PYTHON3_SCRIPTS_DIR} PARENT_SCOPE)
     set(TESTS_PACKAGE "${ARG_TESTS_PACKAGE}")
     configure_file(
         "${MODULE_PATH}/python/test-any-python"
@@ -64,6 +62,7 @@ function(python_package)
         "build"
         "--build-base=${ARG_BUILD_DIR}/build"
         "--build-lib=${ARG_BUILD_DIR}/build/lib"
+        "--build-scripts=${ARG_BUILD_DIR}/build/scripts-whl"
         ${DEBUG_FLAG}
 
         "egg_info"

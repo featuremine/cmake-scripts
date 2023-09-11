@@ -11,6 +11,7 @@ import os
 import pandoc
 import shutil
 import subprocess
+import urllib
 
 
 def build_table_of_contents(ast_1):
@@ -82,7 +83,7 @@ if __name__ == '__main__':
 
     stylepath = os.path.join(os.path.dirname(__file__), 'water.min.css')
     dependencies.append(stylepath)
-    with open(stylepath, 'r') as stylefile:
+    with open(stylepath, 'r', encoding='utf8') as stylefile:
         style = stylefile.read()
 
     to_compile = [
@@ -123,7 +124,7 @@ if __name__ == '__main__':
 
                 shutil.copyfile(image_src, image_dst)
 
-            elif isinstance(i, pandoc.types.Link):
+            elif isinstance(i, pandoc.types.Link) and urllib.parse.urlparse(i[2][0]).scheme == "":
                 linkfile = i[2][0].split('#')[0]
                 linkpath = os.path.abspath(os.path.join(os.path.dirname(src), linkfile))
                 if linkfile != '' and not linkpath in compiled:
@@ -131,11 +132,11 @@ if __name__ == '__main__':
 
         md = pandoc.write(doc=ast, format='markdown')
 
-        with open(output_path_md, 'w') as outfile:
+        with open(output_path_md, 'w', encoding='utf8') as outfile:
             outfile.write(md)
 
         for i in pandoc.iter(ast):
-            if isinstance(i, pandoc.types.Link):
+            if isinstance(i, pandoc.types.Link) and urllib.parse.urlparse(i[2][0]).scheme == "":
                 linkfile = i[2][0].split('#')[0]
                 if linkfile != '':
                     i[2] = (f'{os.path.splitext(i[2][0])[0]}.html', i[2][1])
@@ -146,7 +147,7 @@ if __name__ == '__main__':
             "--no-highlight"
         ])
 
-        with open(output_path_html, 'w') as outfile:
+        with open(output_path_html, 'w', encoding='utf8') as outfile:
             outfile.write(f'''<!DOCTYPE html>\n<html><head><title>{args.title}</title><style>{style}</style></head><body>''')
             outfile.write(html)
             outfile.write('''</body></html>''')
@@ -157,6 +158,7 @@ if __name__ == '__main__':
     for src in to_compile:
         compile_md(src)
 
+    os.makedirs(os.path.dirname(args.htmloutput), exist_ok=True)
     proc = subprocess.Popen([args.cmake, '-E', 'tar', 'czvf', args.htmloutput] + tar_html_files + tar_common_files, cwd=args.builddir)
     proc.wait()
     proc.poll()

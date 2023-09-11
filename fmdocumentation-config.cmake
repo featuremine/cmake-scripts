@@ -11,6 +11,21 @@ set(MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 function(add_documentation)
     find_program(PYTHON3_BIN "python3")
 
+    if (NOT BUILD_DOCUMENTATION_FORCE)
+        if (PYTHON3_BIN-NOTFOUND)
+            message(WARNING "Unable to build documentation: python3 not found")
+            return()
+        endif()
+        execute_process(COMMAND ${PYTHON3_BIN} -c "import pandoc" RESULT_VARIABLE ret)
+        if (NOT ret EQUAL "0")
+            message(WARNING "Unable to build documentation: python module pandoc not found")
+            return()
+        endif()
+    endif()
+    if (PYTHON3_BIN-NOTFOUND)
+        message(FATAL_ERROR "Unable to build documentation: python3 not found")
+    endif()
+
     cmake_parse_arguments(
         ARG
         ""

@@ -53,6 +53,7 @@ function(add_documentation)
         "--target" "output/${ARG_NAME}-${ARG_VERSION}-html.tar.gz"
         "--htmloutput" "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${ARG_VERSION}-html.tar.gz"
         "--mdoutput" "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${ARG_VERSION}-md.tar.gz"
+        "--deptarget" "output/${ARG_NAME}-${ARG_VERSION}-html.tar.gz output/${ARG_NAME}-${ARG_VERSION}-md.tar.gz"
         "--title" "${ARG_TITLE}"
         "--cmake" "${CMAKE_COMMAND}"
 
@@ -64,7 +65,7 @@ function(add_documentation)
         ${ARG_NAME} ALL
 
         COMMENT
-        "Ready ${CMAKE_BINARY_DIR}/output/${ARG_NAME}.html"
+        "Ready ${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${ARG_VERSION}-html.tar.gz"
 
         DEPENDS
         "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${ARG_VERSION}-html.tar.gz"

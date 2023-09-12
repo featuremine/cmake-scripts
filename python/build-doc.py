@@ -72,6 +72,7 @@ if __name__ == '__main__':
     parser.add_argument("--target", help="target name", required=True)
     parser.add_argument("--htmloutput", help="html output name", required=True)
     parser.add_argument("--mdoutput", help="markdown output name", required=True)
+    parser.add_argument("--deptarget", help="depfile target output name", required=True)
     parser.add_argument("--title", help="title", required=True)
     parser.add_argument("--cmake", help="cmake executable", required=True)
     args = parser.parse_args()
@@ -164,8 +165,15 @@ if __name__ == '__main__':
     proc.poll()
     assert proc.returncode == 0
 
+    os.makedirs(os.path.dirname(args.mdoutput), exist_ok=True)
+    proc = subprocess.Popen([args.cmake, '-E', 'tar', 'czvf', args.mdoutput] + tar_md_files + tar_common_files, cwd=args.builddir)
+    proc.wait()
+    proc.poll()
+    assert proc.returncode == 0
+
     with open(args.depfile, 'w') as out:
-        out.write(f'{args.htmloutput} {args.mdoutput}: {stylepath}')
+        out.write(f'{args.deptarget}: {stylepath}')
         for d in dependencies:
             p = os.path.abspath(d)
-        out.write(f' {p}\n')
+            out.write(f' {p}')
+        out.write('\n')

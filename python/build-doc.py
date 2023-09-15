@@ -55,7 +55,7 @@ def compile(ast):
             format = i[0]
             if isinstance(format, pandoc.types.Format):
                 if format[0] == 'html':
-                    if i[1] == '<!--TOC-->':
+                    if i[1].strip() == '<!--TOC-->':
                         toc = build_table_of_contents(ast_1)
                         mod.append(expand_sublist(toc))
                         continue
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
         with open(src, 'rb') as f:
             s = f.read().decode("utf-8")
-            ast = pandoc.read(source=s, format='markdown-smart')
+            ast = pandoc.read(source=s, format='gfm')
 
         ast = compile(ast)
 
@@ -131,7 +131,7 @@ if __name__ == '__main__':
                 if linkfile != '' and not linkpath in compiled:
                     to_compile.append(linkpath)
 
-        md = pandoc.write(doc=ast, format='markdown')
+        md = pandoc.write(doc=ast, format='gfm')
 
         with open(output_path_md, 'w', encoding='utf8') as outfile:
             outfile.write(md)
@@ -145,7 +145,6 @@ if __name__ == '__main__':
         html = pandoc.write(doc=ast, format='html', options=[
             "--ascii",
             "--wrap=none",
-            "--no-highlight"
         ])
 
         with open(output_path_html, 'w', encoding='utf8') as outfile:

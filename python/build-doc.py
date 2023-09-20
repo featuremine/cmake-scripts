@@ -145,7 +145,7 @@ if __name__ == '__main__':
         html = pandoc.write(doc=ast, format='html', options=[
             "--ascii",
             "--wrap=none",
-            "--filter=mermaid-filter"
+            "--filter=pandoc-mermaid"
         ])
 
         with open(output_path_html, 'w', encoding='utf8') as outfile:

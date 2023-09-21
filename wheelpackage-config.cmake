@@ -20,7 +20,7 @@ function(python_package)
     if(CMAKE_BUILD_TYPE MATCHES DEBUG)
         set(DEBUG_FLAG "--debug")
     endif()
-    set(WHEEL_${ARG_NAME}_BUILD_DIR ${ARG_BUILD_DIR} CACHE INTERNAL "Wheel path for ${ARG_NAME}" FORCE)
+    set(WHEEL_${ARG_NAME}_BUILD_DIR "${ARG_BUILD_DIR}/build" CACHE INTERNAL "Wheel path for ${ARG_NAME}" FORCE)
     set(TESTS_PACKAGE "${ARG_TESTS_PACKAGE}")
     configure_file(
         "${MODULE_PATH}/python/test-any-python"
@@ -42,7 +42,9 @@ function(python_package)
         "SCRIPTS=${SCRIPTS}"
         "INSTALL_REQUIRES=${INSTALL_REQUIRES}"
     )
-    cmake_policy(SET CMP0116 OLD)
+
+    set(TARGET "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl")
+    cmake_path(RELATIVE_PATH TARGET BASE_DIRECTORY "${CMAKE_BINARY_DIR}")
     add_custom_command(
         OUTPUT
         "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl"
@@ -53,24 +55,52 @@ function(python_package)
         "${MODULE_PATH}/python/depfile.py"
 
         DEPFILE
-        "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}.d"
+        "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-whl.d"
 
         COMMAND
         ${SET_ENV_VAR}
         "${PYTHON3_BIN}" "${MODULE_PATH}/python/setup.py"
 
         "build"
-        "--build-base=${ARG_BUILD_DIR}/build"
-        "--build-lib=${ARG_BUILD_DIR}/build/lib"
-        "--build-scripts=${ARG_BUILD_DIR}/build/scripts-whl"
+        "--build-base=${ARG_BUILD_DIR}/whl/build"
+        "--build-lib=${ARG_BUILD_DIR}/whl/build/lib"
+        "--build-scripts=${ARG_BUILD_DIR}/whl/build/scripts"
         ${DEBUG_FLAG}
 
         "egg_info"
-        "--egg-base" "${ARG_BUILD_DIR}"
+        "--egg-base" "${ARG_BUILD_DIR}/whl"
 
         "bdist_wheel"
-        "--bdist-dir=${ARG_BUILD_DIR}/bdist"
+        "--bdist-dir=${ARG_BUILD_DIR}/whl/bdist"
         "--dist-dir=${CMAKE_BINARY_DIR}/output"
+
+        COMMAND
+        "${PYTHON3_BIN}" "${MODULE_PATH}/python/depfile.py"
+
+        "--target" "${TARGET}"
+        "--sources" "${ARG_BUILD_DIR}/whl/${ARG_NAME}.egg-info/SOURCES.txt"
+        "--output" "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-whl.d"
+
+        WORKING_DIRECTORY "${ARG_SRC_DIR}"
+    )
+    add_custom_target(
+        ${ARG_NAME}-whl ALL
+        DEPENDS "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl"
+    )
+
+    set(TARGET "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-build.d")
+    cmake_path(RELATIVE_PATH TARGET BASE_DIRECTORY "${CMAKE_BINARY_DIR}")
+    add_custom_command(
+        OUTPUT
+        "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-build.d"
+
+        DEPENDS
+        "${ARG_BUILD_DIR}/test-${ARG_NAME}-python"
+        "${MODULE_PATH}/python/setup.py"
+        "${MODULE_PATH}/python/depfile.py"
+
+        DEPFILE
+        "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-build.d"
 
         COMMAND
         ${SET_ENV_VAR}
@@ -79,24 +109,27 @@ function(python_package)
         "build_scripts"
         "--executable=${PYTHON3_BIN}"
 
+        "egg_info"
+        "--egg-base" "${ARG_BUILD_DIR}/build"
+
         "build"
-        "--build-base=${ARG_BUILD_DIR}/build"
-        "--build-lib=${ARG_BUILD_DIR}/build/lib"
-        "--build-scripts=${ARG_BUILD_DIR}/build/scripts"
+        "--build-base=${ARG_BUILD_DIR}/build/build"
+        "--build-lib=${ARG_BUILD_DIR}/build/build/lib"
+        "--build-scripts=${ARG_BUILD_DIR}/build/build/scripts"
         ${DEBUG_FLAG}
 
         COMMAND
         "${PYTHON3_BIN}" "${MODULE_PATH}/python/depfile.py"
 
-        "--target" "output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl"
-        "--sources" "${ARG_BUILD_DIR}/${ARG_NAME}.egg-info/SOURCES.txt"
-        "--output" "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}.d"
+        "--target" "${TARGET}"
+        "--sources" "${ARG_BUILD_DIR}/build/${ARG_NAME}.egg-info/SOURCES.txt"
+        "--output" "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-build.d"
 
         WORKING_DIRECTORY "${ARG_SRC_DIR}"
     )
     add_custom_target(
-        ${ARG_NAME}-whl ALL
-        DEPENDS "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl"
+        ${ARG_NAME}-py ALL
+        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-build.d"
     )
 endfunction()
 

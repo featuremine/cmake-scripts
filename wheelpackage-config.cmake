@@ -88,6 +88,7 @@ function(python_package)
         DEPENDS "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl"
     )
 
+    cmake_policy(SET CMP0116 OLD)
     set(TARGET "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-build.d")
     cmake_path(RELATIVE_PATH TARGET BASE_DIRECTORY "${CMAKE_BINARY_DIR}")
     add_custom_command(

@@ -120,7 +120,7 @@ function(add_subproject)
             DIR ${DEP_SRC_DIR}
         )
 
-        cmake_policy(CMP0077 NEW)
+        cmake_policy(SET CMP0077 NEW)
         set(BUILD_SHARED_LIBS OFF)
         set(BUILD_TESTING OFF)
         set(BUILD_API_DOCS OFF)

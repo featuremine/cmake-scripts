@@ -6,8 +6,6 @@
         file, You can obtain one at https://mozilla.org/MPL/2.0/.
 ]===]
 
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-
 function(git_clone)
     cmake_parse_arguments(
         ARG
@@ -16,8 +14,10 @@ function(git_clone)
         ""
         ${ARGN}
     )
+    string(MD5 HASH ${ARG_DIR})
     if (NOT EXISTS "${ARG_DIR}")
         find_package(Git REQUIRED)
+        message(STATUS "Git cloning ${ARG_GIT_URL} ${ARG_GIT_REVISION}")
         execute_process(
             COMMAND
             "${GIT_EXECUTABLE}"
@@ -33,7 +33,61 @@ function(git_clone)
             ERROR_VARIABLE stderr
         )
         if(ret AND NOT ret EQUAL 0)
-            message(FATAL_ERROR "git clone ${DEP_GIT_URL} failed: ${stderr}")
+            message(FATAL_ERROR "git clone ${ARG_GIT_URL} failed: ${stderr}")
+        endif()
+        set(GITCLONE_${HASH}_REVISION_REQUESTED "${ARG_GIT_REVISION}" CACHE INTERNAL "Revision requested for git repo ${ARG_DIR}" FORCE)
+    elseif(NOT GITCLONE_${HASH}_REVISION_REQUESTED STREQUAL ARG_GIT_REVISION)
+        find_package(Git REQUIRED)
+        execute_process(
+            COMMAND
+            "${GIT_EXECUTABLE}"
+            "-C"
+            "${ARG_DIR}"
+            "fetch"
+            "--depth"
+            "1"
+            "origin"
+            "${ARG_GIT_REVISION}"
+            RESULT_VARIABLE ret
+            ERROR_VARIABLE stderr
+        )
+        if(ret AND NOT ret EQUAL 0)
+            message(WARNING "git fetch ${ARG_GIT_URL} failed: ${stderr}")
+        else()
+            execute_process(
+                COMMAND
+                "${GIT_EXECUTABLE}"
+                "-C"
+                "${ARG_DIR}"
+                "rev-parse"
+                "FETCH_HEAD"
+                RESULT_VARIABLE ret
+                OUTPUT_VARIABLE stdout
+                ERROR_VARIABLE stderr
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            if(ret AND NOT ret EQUAL 0)
+                message(WARNING "git rev-parse ${ARG_GIT_URL} failed: ${stderr}")
+            else()
+                execute_process(
+                    COMMAND
+                    "${GIT_EXECUTABLE}"
+                    "-C"
+                    "${ARG_DIR}"
+                    "checkout"
+                    "${stdout}"
+                    RESULT_VARIABLE ret
+                    OUTPUT_VARIABLE stdout
+                    ERROR_VARIABLE stderr
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                )
+                if(ret AND NOT ret EQUAL 0)
+                    message(FATAL_ERROR "git rev-parse ${ARG_GIT_URL} failed: ${stderr}")
+                else()
+                    message("Git checkout ${ARG_GIT_URL} from ${GITCLONE_${HASH}_REVISION_REQUESTED} to ${ARG_GIT_REVISION}")
+                    set(GITCLONE_${HASH}_REVISION_REQUESTED "${ARG_GIT_REVISION}" CACHE INTERNAL "Revision requested for git repo ${ARG_DIR}" FORCE)
+                endif()
+            endif()
         endif()
     endif()
 endfunction()
@@ -60,14 +114,13 @@ function(add_subproject)
     if (NOT ALREADY_EXISTS)
         set(DEP_SRC_DIR "${CMAKE_BINARY_DIR}/dependencies/src/${ARG_NAME}")
         set(DEP_BIN_DIR "${CMAKE_BINARY_DIR}/dependencies/build/${ARG_NAME}")
-        if (NOT EXISTS "${DEP_SRC_DIR}")
-            message(STATUS "Downloading ${ARG_NAME} ${ARG_VERSION} ${ARG_GIT_REVISION}")
-            git_clone(
-                GIT_REVISION ${ARG_GIT_REVISION}
-                GIT_URL ${ARG_GIT_URL}
-                DIR ${DEP_SRC_DIR}
-            )
-        endif()
+        git_clone(
+            GIT_REVISION ${ARG_GIT_REVISION}
+            GIT_URL ${ARG_GIT_URL}
+            DIR ${DEP_SRC_DIR}
+        )
+
+        cmake_policy(CMP0077 NEW)
         set(BUILD_SHARED_LIBS OFF)
         set(BUILD_TESTING OFF)
         set(BUILD_API_DOCS OFF)
@@ -81,6 +134,7 @@ function(add_subproject)
         unset(BUILD_API_DOCS)
         unset(BUILD_TESTING)
         unset(BUILD_SHARED_LIBS)
+
         foreach(VAR_NAME IN LISTS ARG_VARIABLES)
             get_directory_property(${VAR_NAME} DIRECTORY "${DEP_SRC_DIR}" DEFINITION ${VAR_NAME})
             set(${VAR_NAME} ${${VAR_NAME}} PARENT_SCOPE)
@@ -156,7 +210,7 @@ function(add_make_subproject)
                 WORKING_DIRECTORY ${DEP_SRC_DIR}
             )
             if(ret AND NOT ret EQUAL 0)
-                message(FATAL_ERROR "build ${DEP_GIT_URL} failed: ${stderr}")
+                message(FATAL_ERROR "build ${ARG_GIT_URL} failed: ${stderr}")
             endif()
         endif()
         add_library(

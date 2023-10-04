@@ -6,6 +6,8 @@
         file, You can obtain one at https://mozilla.org/MPL/2.0/.
 ]===]
 
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
 function(git_clone)
     cmake_parse_arguments(
         ARG

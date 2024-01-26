@@ -45,6 +45,7 @@ function(python_package)
 
     set(TARGET "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl")
     cmake_path(RELATIVE_PATH TARGET BASE_DIRECTORY "${CMAKE_BINARY_DIR}")
+    file(GLOB_RECURSE PY_SRC "${ARG_SRC_DIR}" *)
     add_custom_command(
         OUTPUT
         "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl"
@@ -53,6 +54,7 @@ function(python_package)
         "${ARG_BUILD_DIR}/test-${ARG_NAME}-python"
         "${MODULE_PATH}/python/setup.py"
         "${MODULE_PATH}/python/depfile.py"
+        "${PY_SRC}"
 
         DEPFILE
         "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-whl.d"
@@ -99,6 +101,7 @@ function(python_package)
         "${ARG_BUILD_DIR}/test-${ARG_NAME}-python"
         "${MODULE_PATH}/python/setup.py"
         "${MODULE_PATH}/python/depfile.py"
+        "${PY_SRC}"
 
         DEPFILE
         "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-build.d"

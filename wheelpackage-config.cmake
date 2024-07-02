@@ -44,6 +44,7 @@ function(python_package)
         "PACKAGE_DATA=${ARG_PACKAGE_DATA}"
     )
 
+    cmake_policy(SET CMP0116 OLD)
     set(TARGET "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl")
     cmake_path(RELATIVE_PATH TARGET BASE_DIRECTORY "${CMAKE_BINARY_DIR}")
     file(GLOB_RECURSE PY_SRC "${ARG_SRC_DIR}/*")

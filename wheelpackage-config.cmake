@@ -13,7 +13,7 @@ function(python_package)
         ARG
         ""
         "NAME;SHORT_DESCRIPTION;LONG_DESCRIPTION;SRC_DIR;BUILD_DIR;TESTS_PACKAGE"
-        "PACKAGES;SCRIPTS;INSTALL_REQUIRES"
+        "PACKAGES;SCRIPTS;INSTALL_REQUIRES;PACKAGE_DATA"
         ${ARGN}
     )
     find_program(PYTHON3_BIN "python3" REQUIRED)
@@ -41,6 +41,7 @@ function(python_package)
         "PACKAGES=${PACKAGES}"
         "SCRIPTS=${SCRIPTS}"
         "INSTALL_REQUIRES=${INSTALL_REQUIRES}"
+        "PACKAGE_DATA=${ARG_PACKAGE_DATA}"
     )
 
     set(TARGET "${CMAKE_BINARY_DIR}/output/${ARG_NAME}-${PROJECT_VERSION}-py3-none-any.whl")

@@ -43,6 +43,13 @@ if len(install_requires_joined) > 0:
         install_requires.append(p)
 
 
+package_data = []
+package_data_joined = os.getenv('PACKAGE_DATA')
+if len(package_data_joined) > 0:
+    for p in package_data_joined.split(':'):
+        package_data.append(p)
+
+
 setuptools.setup(
     name = os.getenv('PACKAGE_NAME'),
     version = os.getenv('PACKAGE_VERSION'),
@@ -56,6 +63,7 @@ setuptools.setup(
     ],
     license='COPYRIGHT (c) 2019-2023 by Featuremine Corporation',
     scripts=scripts,
+    package_data={os.getenv('PACKAGE_NAME'): package_data},
     packages=setuptools.find_packages(include=tuple(packages)),
     install_requires=install_requires,
 )

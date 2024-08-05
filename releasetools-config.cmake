@@ -1,8 +1,8 @@
-function(download_release_file)
+function(download_custom_release_file)
     cmake_parse_arguments(
         ARG
         ""
-        "PROJECT;VERSION;FILE;OUTPUT_TARGET_NAME"
+        "OWNER;PROJECT;VERSION;FILE;OUTPUT_TARGET_NAME"
         ""
         ${ARGN}
     )
@@ -15,7 +15,7 @@ function(download_release_file)
             "${CMAKE_BINARY_DIR}/assets/${ARG_FILE}"
 
             COMMAND
-            gh release download v${ARG_VERSION} --repo featuremine/${ARG_PROJECT} --pattern "${ARG_FILE}"
+            gh release download v${ARG_VERSION} --repo ${ARG_OWNER}/${ARG_PROJECT} --pattern "${ARG_FILE}"
 
             WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/assets"
         )
@@ -24,6 +24,23 @@ function(download_release_file)
             DEPENDS "${CMAKE_BINARY_DIR}/assets/${ARG_FILE}"
         )
     endif()
+endfunction()
+
+function(download_release_file)
+    cmake_parse_arguments(
+        ARG
+        ""
+        "PROJECT;VERSION;FILE;OUTPUT_TARGET_NAME"
+        ""
+        ${ARGN}
+    )
+    download_custom_release_file(
+        OWNER featuremine
+        PROJECT ${ARG_PROJECT}
+        VERSION ${ARG_VERSION}
+        FILE ${ARG_FILE}
+        OUTPUT_TARGET_NAME ${ARG_OUTPUT_TARGET_NAME}
+    )
 endfunction()
 
 function(get_python_platform OUTPUT_VARIABLE)

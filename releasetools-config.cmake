@@ -39,8 +39,8 @@ endmacro()
 macro(add_py_file SRC DST)
   add_custom_command(
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}"
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/python/${SRC}" "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}"
-    DEPENDS "${PROJECT_SOURCE_DIR}/python/${SRC}"
+    COMMAND ${CMAKE_COMMAND} -E copy "${CURRENT_SOURCE_DIR}/${SRC}" "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}"
+    DEPENDS "${CURRENT_SOURCE_DIR}/${SRC}"
   )
   list(APPEND PY_FILES "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}")
 endmacro()

@@ -8,7 +8,7 @@ function(download_custom_release_file)
     )
     string(MD5 HASH "${CMAKE_BINARY_DIR}/assets/${ARG_FILE}")
     set(TARGET_NAME "download-asset-${HASH}")
-    set("${ARG_OUTPUT_TARGET_NAME}" "${TARGET_NAME}" PARENT_SCOPE)
+    set("${ARG_OUTPUT_TARGET_NAME}" "${TARGET_NAME}" CACHE INTERNAL "${PROJECT} asset target name")
     if (NOT TARGET ${TARGET_NAME})
         add_custom_command(
             OUTPUT
@@ -26,22 +26,24 @@ function(download_custom_release_file)
     endif()
 endfunction()
 
-function(download_release_file)
-    cmake_parse_arguments(
-        ARG
-        ""
-        "PROJECT;VERSION;FILE;OUTPUT_TARGET_NAME"
-        ""
-        ${ARGN}
-    )
+macro(download_release_file PROJECT VERSION FILE OUTPUT_TARGET_NAME)
     download_custom_release_file(
         OWNER featuremine
-        PROJECT ${ARG_PROJECT}
-        VERSION ${ARG_VERSION}
-        FILE ${ARG_FILE}
-        OUTPUT_TARGET_NAME ${ARG_OUTPUT_TARGET_NAME}
+        PROJECT ${PROJECT}
+        VERSION ${VERSION}
+        FILE ${FILE}
+        OUTPUT_TARGET_NAME ${OUTPUT_TARGET_NAME}
     )
-endfunction()
+endmacro()
+
+macro(add_py_file SRC DST)
+  add_custom_command(
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/python/${SRC}" "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}"
+    DEPENDS "${PROJECT_SOURCE_DIR}/python/${SRC}"
+  )
+  list(APPEND PY_FILES "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}")
+endmacro()
 
 function(get_python_platform OUTPUT_VARIABLE)
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux")

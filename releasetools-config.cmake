@@ -26,15 +26,22 @@ function(download_custom_release_file)
     endif()
 endfunction()
 
-macro(download_release_file PROJECT VERSION FILE OUTPUT_TARGET_NAME)
-    download_custom_release_file(
-        OWNER featuremine
-        PROJECT ${PROJECT}
-        VERSION ${VERSION}
-        FILE ${FILE}
-        OUTPUT_TARGET_NAME ${OUTPUT_TARGET_NAME}
+function(download_release_file)
+    cmake_parse_arguments(
+        ARG
+        ""
+        "PROJECT;VERSION;FILE;OUTPUT_TARGET_NAME"
+        ""
+        ${ARGN}
     )
-endmacro()
+    download_custom_release_file(
+        OWNER "featuremine"
+        PROJECT ${ARG_PROJECT}
+        VERSION ${ARG_VERSION}
+        FILE ${ARG_FILE}
+        OUTPUT_TARGET_NAME ${ARG_OUTPUT_TARGET_NAME}
+    )
+endfunction()
 
 macro(add_py_file SRC DST)
   add_custom_command(

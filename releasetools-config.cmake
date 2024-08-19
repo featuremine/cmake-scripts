@@ -8,7 +8,7 @@ function(download_custom_release_file)
     )
     string(MD5 HASH "${CMAKE_BINARY_DIR}/assets/${ARG_FILE}")
     set(TARGET_NAME "download-asset-${HASH}")
-    set("${ARG_OUTPUT_TARGET_NAME}" "${TARGET_NAME}" PARENT_SCOPE)
+    set("${ARG_OUTPUT_TARGET_NAME}" "${TARGET_NAME}" CACHE INTERNAL "${PROJECT} asset target name")
     if (NOT TARGET ${TARGET_NAME})
         add_custom_command(
             OUTPUT
@@ -35,13 +35,22 @@ function(download_release_file)
         ${ARGN}
     )
     download_custom_release_file(
-        OWNER featuremine
+        OWNER "featuremine"
         PROJECT ${ARG_PROJECT}
         VERSION ${ARG_VERSION}
         FILE ${ARG_FILE}
         OUTPUT_TARGET_NAME ${ARG_OUTPUT_TARGET_NAME}
     )
 endfunction()
+
+macro(add_py_file SRC DST)
+  add_custom_command(
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}"
+    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${SRC}" "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${SRC}"
+  )
+  list(APPEND PY_FILES "${CMAKE_CURRENT_BINARY_DIR}/dist/${DST}")
+endmacro()
 
 function(get_python_platform OUTPUT_VARIABLE)
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux")

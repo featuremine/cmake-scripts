@@ -13,7 +13,7 @@ function(python_package)
         ARG
         ""
         "NAME;SHORT_DESCRIPTION;LONG_DESCRIPTION;SRC_DIR;BUILD_DIR;TESTS_PACKAGE"
-        "PACKAGES;SCRIPTS;INSTALL_REQUIRES;PACKAGE_DATA"
+        "PACKAGES;SCRIPTS;INSTALL_REQUIRES;PACKAGE_DATA;DEPENDS"
         ${ARGN}
     )
     find_program(PYTHON3_BIN "python3" REQUIRED)
@@ -58,6 +58,7 @@ function(python_package)
         "${MODULE_PATH}/python/setup.py"
         "${MODULE_PATH}/python/depfile.py"
         "${PY_SRC}"
+        "${ARG_DEPENDS}"
 
         DEPFILE
         "${CMAKE_CURRENT_BINARY_DIR}/python-${ARG_NAME}-whl.d"

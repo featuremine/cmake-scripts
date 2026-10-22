@@ -7,7 +7,7 @@
 ]===]
 
 macro(fm_config)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    if (MSVC)
         SET(CMAKE_C_FLAGS_DEBUG "/Z7 /Od /GL")
         SET(CMAKE_CXX_FLAGS_DEBUG "/Z7 /Od /GL")
         # more about optimization options:
@@ -71,8 +71,8 @@ macro(fm_config)
         # as Fatal Error C1083 (cannot open file) or C1853 (PCH header file is invalid)
         # -Wall
         # /W4
-        string(APPEND CMAKE_C_FLAGS " /Zc:preprocessor /W0 /W4 /wd4068 /wd4100 /w14789 /w14138 /w14701 /w14702 /w14505 /w34102 /w14101")
-        string(APPEND CMAKE_CXX_FLAGS " /Zc:preprocessor /W4 /wd4068 /wd4221 /wd4200 /wd4201 /wd4202 /wd4203 /wd4204 /wd4205 /wd4206 /wd4206 /wd4207 /wd4208 /wd4209 /w14789 /w14138 /w14701 /w14702 /w14505 /w34102 /w14101")
+        string(APPEND CMAKE_C_FLAGS " /Zc:preprocessor /W4 /wd4068 /wd4100 /w14789 /w14138 /w14701 /w14702 /w14505 /w34102 /w14101")
+        string(APPEND CMAKE_CXX_FLAGS " /Zc:preprocessor /W4 /wd4068 /wd4221 /wd4200 /wd4201 /wd4202 /wd4203 /wd4204 /wd4205 /wd4206 /wd4207 /wd4208 /wd4209 /w14789 /w14138 /w14701 /w14702 /w14505 /w34102 /w14101")
         set(CMAKE_CXX_STANDARD 20)
         set(CMAKE_C_STANDARD 23)
     else()
@@ -102,7 +102,7 @@ macro(fm_config)
         string(APPEND CMAKE_C_FLAGS " -Wduplicate-decl-specifier -Waddress -Warray-bounds -Wchar-subscripts -Winit-self -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wunused-function -Wunused-label -Wunused-variable -Winvalid-pch -Wall")
         string(APPEND CMAKE_CXX_FLAGS " -Waddress -Warray-bounds -Wchar-subscripts -Winit-self -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wunused-function -Wunused-label -Wunused-variable -Winvalid-pch -Wnon-virtual-dtor -Wall")
     endif()
-    if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    if (NOT MSVC AND NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
         string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,ALL")
     endif()
 

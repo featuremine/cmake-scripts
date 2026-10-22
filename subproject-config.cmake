@@ -102,6 +102,9 @@ function(add_subproject)
         "TARGETS;VARIABLES"
         ${ARGN}
     )
+    # Exported variables may survive in CMakeCache.txt, but targets and commands
+    # must be recreated on every configure. Only live targets prove that the
+    # dependency has already been added during this configure.
     set(ALREADY_EXISTS FALSE)
     foreach(TARGET_NAME IN LISTS ARG_TARGETS)
         if (TARGET ${TARGET_NAME})
